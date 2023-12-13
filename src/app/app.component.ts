@@ -5,6 +5,7 @@ import { HomeComponent } from './home/home.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RoadService } from './services/road.service';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,7 @@ import { RoadService } from './services/road.service';
     HomeComponent,
     HttpClientModule,
     FormsModule,
+    MatCardModule,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',

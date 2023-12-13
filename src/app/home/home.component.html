@@ -50,6 +50,15 @@
         <div class="example-element-description">
           {{ element.description }}
         </div>
+        <div *ngIf="element.expandedDetail">
+          <div
+            *ngIf="element.expandedDetail && element.expandedDetail.roadWorks"
+          >
+            <div *ngFor="let roadWork of element.expandedDetail.roadWorks">
+              <div>{{ roadWork.title }}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </td>
   </ng-container>

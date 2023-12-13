@@ -10,15 +10,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { RoadService } from '../services/road.service';
-import { title } from 'process';
+import { CommonModule } from '@angular/common';
 
 export interface RoadStatus {
   name: string;
-}
 
-export interface RoadWorks {
-  title: string;
-  subtitle: string;
+  title?: string[];
 }
 
 // const ELEMENT_DATA: PeriodicElement[] = [
@@ -115,7 +112,7 @@ export interface RoadWorks {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule, MatIconModule],
+  imports: [MatTableModule, MatButtonModule, MatIconModule, CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   animations: [
@@ -131,7 +128,6 @@ export interface RoadWorks {
 })
 export class HomeComponent implements OnInit {
   dataSource: RoadStatus[] = [];
-  roadWorks: RoadWorks[] = [];
   columnsToDisplay = [
     'name',
     'roadworks',
@@ -148,7 +144,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRoads();
-    this.loadRoadWorks();
+    //this.loadRoadWorks('A1');
   }
 
   loadRoads() {
@@ -157,11 +153,26 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  loadRoadWorks() {
-    this.roadService.getRoadWorks('A1').subscribe((data) => {
-      this.roadWorks = data.roadworks.map((title: string) => ({
-        title,
-      }));
-    });
-  }
+  // loadRoadWorks(road:string) {
+  //   this.roadService.getRoadWorks(road).subscribe((data) => {
+  //     console.log(data);
+  //   });
+  // }
+
+  // HomeComponent içindeki loadRoadWorks metodunu güncelleyin
+  // loadRoadWorks(roadName: string) {
+  //   this.roadService.getRoadWorks(roadName).subscribe((data) => {
+  //     // dataSource içinde ilgili yolun detaylarını güncelle
+  //     const roadIndex = this.dataSource.findIndex(
+  //       (road) => road.name === roadName
+  //     );
+  //     if (roadIndex !== -1) {
+  //       // Sadece roadWorks içindeki title'ları al
+  //       const roadWorkTitles = data.roadWorks.map(
+  //         (roadWork: any) => roadWork.title
+  //       );
+  //       this.dataSource[roadIndex].title = roadWorkTitles;
+  //     }
+  //   });
+  // }
 }
