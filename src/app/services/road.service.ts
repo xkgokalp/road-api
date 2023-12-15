@@ -33,12 +33,14 @@ export class RoadService {
   }
 
   getParkingLorry(road: string): Observable<any> {
-    return this.http.get<any>(`${this.roadsUrl}/${road}/services/parkinglorry`);
+    return this.http.get<any>(
+      `${this.roadsUrl}/${road}/services/parking_lorry`
+    );
   }
 
   getParkingLorryDetails(parkingLorryId: string): Observable<any> {
     return this.http.get<any>(
-      `${this.roadsUrl}/details/parkinglorry/${parkingLorryId}`
+      `${this.roadsUrl}/details/parking_lorry/${parkingLorryId}`
     );
   }
 
@@ -60,13 +62,13 @@ export class RoadService {
 
   getElectricChargingStation(road: string): Observable<any> {
     return this.http.get<any>(
-      `${this.roadsUrl}/${road}/services/electricchargingstation`
+      `${this.roadsUrl}/${road}/services/electric_charging_station`
     );
   }
 
   getElectricChargingStationDetails(StationId: string): Observable<any> {
     return this.http.get<any>(
-      `${this.roadsUrl}/details/electricchargingstation/${StationId}`
+      `${this.roadsUrl}/details/electric_charging_station/${StationId}`
     );
   }
 }
