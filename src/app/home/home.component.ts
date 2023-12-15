@@ -19,15 +19,15 @@ import { forkJoin, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
 export interface RoadStatus {
-  name?: string;
-  roadworks?: string[];
+  RoadName?: string;
+  Roadworks?: string[];
 
   Direction?: string[];
   webcams?: string[];
-  parkinglorry?: string[];
-  warning?: string[];
-  closure?: string[];
-  electricchargingstation?: string[];
+  ParkingLorry?: string[];
+  Warning?: string[];
+  Closure?: string[];
+  ElectricChargingStation?: string[];
 }
 
 @Component({
@@ -57,13 +57,13 @@ export class HomeComponent implements OnInit {
   dataSource: MatTableDataSource<RoadStatus> =
     new MatTableDataSource<RoadStatus>([]);
   columnsToDisplay = [
-    'name',
-    'roadworks',
+    'RoadName',
+    'Roadworks',
     'Direction',
-    'parkinglorry',
-    'warning',
-    'closure',
-    'electricchargingstation',
+    'ParkingLorry',
+    'Warning',
+    'Closure',
+    'ElectricChargingStation',
   ];
   columnsToDisplayWithExpand = [...this.columnsToDisplay, 'expand'];
 
@@ -106,64 +106,86 @@ export class HomeComponent implements OnInit {
               closureData,
               stationData,
             ]) => {
-              const roadWorkTitles = roadWorksData.roadworks.map(
-                (work: any) => work.title
-              );
-
-              // const roadWorkId = roadWorksData.roadworks.map(
-              //   (work: any) => work.identifier
-              // );
-
+              // Roadworks
               const roadWorkDescriptions = roadWorksData.roadworks.map(
-                (work: any) => work.description
+                (work: any) => {
+                  if (work.description) return work.description;
+                  else return 'No Roadwork';
+                }
               );
-              const RoadWorkDirection = roadWorksData.roadworks.map(
-                (work: any) => work.subtitle
-              );
-              const firstRoadWorkDirection = RoadWorkDirection[0];
               const firstRoadWorkDescription = roadWorkDescriptions[0];
 
-              const parkingLorryTitles = parkingLorryData.parking_lorry.map(
-                (lorry: any) => lorry.title
+              // Direction
+              const RoadWorkDirection = roadWorksData.roadworks.map(
+                (work: any) => {
+                  if (work.subtitle) return work.subtitle;
+                  else return 'No Direction';
+                }
               );
+              const firstRoadWorkDirection = RoadWorkDirection[0];
 
+              // Parking Lorry
               const parkingLorryDescriptions =
                 parkingLorryData.parking_lorry.map(
-                  (lorry: any) => lorry.description
+                  (lorry: any) => `${lorry.title} \n ${lorry.subtitle}`
                 );
               const firstParkingLorryDescription = parkingLorryDescriptions[0];
 
-              const warningTitles = warningData.warning.map(
-                (warning: any) => warning.title
-              );
-              const closureTitles = closureData.closure.map(
-                (closure: any) => closure.title
-              );
-              const stationTitles = stationData.electric_charging_station.map(
-                (station: any) => station.title
+              // Warning
+              const warningTitles = warningData.warning.map((warning: any) => {
+                if (warning.title) return warning.title;
+                else return 'No Warning';
+              });
+
+              // Closure
+              const closureDescriptions = closureData.closure.map(
+                (closure: any) => {
+                  if (closure.future === true) {
+                    const date = new Date(closure.startTimestamp);
+                    const formattedDate = `${date.getDate()}.${
+                      date.getMonth() + 1
+                    }.${date.getFullYear()}`;
+                    return `Closure on ${closure.title} from \n ${formattedDate}`;
+                  } else {
+                    return `No Closure`;
+                  }
+                }
               );
 
+              const firstClosureDescription = closureDescriptions[0];
+
+              // Electric Charging Station
               const stationDescriptions =
-                stationData.electric_charging_station.map(
-                  (station: any) => station.description
-                );
+                stationData.electric_charging_station.map((station: any) => {
+                  if (station.coordinate) {
+                    const lat = parseFloat(station.coordinate.lat);
+                    const formattedLat = isNaN(lat)
+                      ? 'Invalid Lat'
+                      : lat.toFixed(1);
+                    const long = parseFloat(station.coordinate.long);
+                    const formattedLong = isNaN(long)
+                      ? 'Invalid Long'
+                      : long.toFixed(1);
+
+                    return `Station at coordinates :\n (${formattedLat} , ${formattedLong})   `;
+                  } else return 'No Station';
+                });
 
               const firstStationDescription = stationDescriptions[0];
 
               return {
-                name: roadName,
-                roadworks: firstRoadWorkDescription,
+                RoadName: roadName,
+                Roadworks: firstRoadWorkDescription,
                 Direction: firstRoadWorkDirection,
-                parkinglorry: firstParkingLorryDescription,
-                warning: warningTitles,
-                closure: closureTitles,
-                electricchargingstation: firstStationDescription,
+                ParkingLorry: firstParkingLorryDescription,
+                Warning: warningTitles,
+                Closure: firstClosureDescription,
+                ElectricChargingStation: firstStationDescription,
               } as RoadStatus;
             }
           ),
           catchError((error) => {
             console.error(`Error loading data for ${roadName}`, error);
-            // Returning of(null) or an empty object to not interrupt the whole process
             return of(null);
           })
         );
@@ -173,106 +195,9 @@ export class HomeComponent implements OnInit {
         this.dataSource = new MatTableDataSource(
           results.filter((result: any) => result !== null)
         );
-        this.dataSource.paginator = this.paginator; // Set the paginator after the data is loaded.
+        this.dataSource.paginator = this.paginator; // For pagination
         this.paginator.length = this.dataSource.data.length;
       });
     });
   }
 }
-
-// loadRoads() {
-//   this.roadService.getRoads().subscribe((data) => {
-//     this.dataSource = data.roads.map((name: string) => ({ name }));
-//   });
-// }
-
-//   loadRoadWorks() {
-//     // Önce tüm yolları çek
-//     this.roadService.getRoads().subscribe((data) => {
-//       // Her bir yol için roadworks bilgilerini çek
-//       data.roads.forEach((roadName: string) => {
-//         this.roadService.getRoadWorks(roadName).subscribe(
-//           (roadWorksData) => {
-//             const roadWorkTitles = roadWorksData.roadworks.map((work: any) => {
-//               return work.title;
-//             });
-//             // Her bir roadworks bilgisini dataSource'a ekle
-//             this.dataSource.push({
-//               name: roadName,
-//               roadworks: roadWorkTitles, // Eğer roadworks içinde özel bir alan adı varsa onu kullanabilirsiniz
-//             });
-
-//             // dataSource güncellendiğinde Angular'a değişikliği bildir
-//             this.dataSource = [...this.dataSource];
-
-//             //console.log(this.dataSource);
-//           }
-//           // (error) => {
-//           //   console.error(`Error retrieving roadworks for ${roadName}:`, error);
-//           // }
-//         );
-//       });
-//     });
-//   }
-
-//   loadParkingLorry() {
-//     // Önce tüm yolları çek
-//     this.roadService.getRoads().subscribe((data) => {
-//       // Her bir yol için roadworks bilgilerini çek
-//       data.roads.forEach((roadName: string) => {
-//         this.roadService.getParkingLorry(roadName).subscribe(
-//           (parkingLorryData) => {
-//             //console.log(parkingLorryData);
-//             const parkingLorryTitles = parkingLorryData.parking_lorry.map(
-//               (lorry: any) => {
-//                 return lorry.title;
-//               }
-//             );
-//             //console.log(parkingLorryTitles);
-//             // Her bir roadworks bilgisini dataSource'a ekle
-//             this.dataSource.push({
-//               parkinglorry: parkingLorryTitles, // Eğer roadworks içinde özel bir alan adı varsa onu kullanabilirsiniz
-//             });
-
-//             // dataSource güncellendiğinde Angular'a değişikliği bildir
-//             this.dataSource = [...this.dataSource];
-
-//             //console.log('data soruce :', this.dataSource);
-//           }
-//           // (error) => {
-//           //   console.error(`Error retrieving roadworks for ${roadName}:`, error);
-//           // }
-//         );
-//       });
-//     });
-//   }
-
-// loadWebcams() {
-//   this.roadService.getRoads().subscribe((data) => {
-//     // Her bir yol için roadworks bilgilerini çek
-//     data.roads.forEach((roadName: string) => {
-//       this.roadService.getWebcams(roadName).subscribe(
-//         (webcamData) => {
-//           console.log(webcamData);
-//           const webcamTitles = webcamData.webcams.map((webcam: any) => {
-//             return webcam.title;
-//           });
-
-//           // Her bir roadworks bilgisini dataSource'a ekle
-//           this.dataSource.push({
-//             webcams: webcamTitles, // Eğer roadworks içinde özel bir alan adı varsa onu kullanabilirsiniz
-//           });
-
-//           // dataSource güncellendiğinde Angular'a değişikliği bildir
-//           this.dataSource = [...this.dataSource];
-
-//           //console.log(this.dataSource);
-//         },
-//         (error) => {
-//           console.error(`Error retrieving roadworks for ${roadName}:`, error);
-//         }
-//       );
-//     });
-//   });
-// }
-// }
